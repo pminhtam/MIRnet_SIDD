@@ -53,7 +53,7 @@ def train(args):
         # for k, v in state_dict.items():
         #     name = "model."+ k  # remove `module.`
         #     new_state_dict[name] = v
-        model.model.load_state_dict(state_dict)
+        model.load_state_dict(state_dict)
         optimizer.load_state_dict(checkpoint['optimizer'])
         print('=> loaded checkpoint (epoch {}, global_step {})'.format(start_epoch, global_step))
     except:
