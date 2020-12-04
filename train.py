@@ -66,7 +66,7 @@ def train(args):
             noise = noise.to(device)
             gt = gt.to(device)
             pred = model(noise)
-            print(pred.size())
+            # print(pred.size())
             loss = loss_func(pred, gt)
             optimizer.zero_grad()
             loss.backward()
