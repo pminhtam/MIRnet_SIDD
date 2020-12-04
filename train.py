@@ -109,12 +109,8 @@ if __name__ == "__main__":
                         help='Whether to remove all old files and restart the training process')
     parser.add_argument('--num_workers', '-nw', default=4, type=int, help='number of workers in data loader')
     parser.add_argument('--cuda', '-c', action='store_true', help='whether to train on the GPU')
-    parser.add_argument('--mGPU', '-mg', action='store_true', help='whether to train on multiple GPUs')
-    parser.add_argument('--eval', action='store_true', help='whether to work on the evaluation mode')
     parser.add_argument('--checkpoint', '-ckpt', type=str, default='checkpoints',
                         help='the checkpoint to eval')
-    parser.add_argument('--color', '-cl', default=True, action='store_true')
-    parser.add_argument('--model_type', '-m', default="KPN", help='type of model : KPN, attKPN, attWKPN')
 
     args = parser.parse_args()
     #
