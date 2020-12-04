@@ -41,6 +41,7 @@ def test(args):
     #     print('=> no checkpoint file to be loaded.')    # model.load_state_dict(state_dict)
     #     exit(1)
     model.eval()
+    model = model.to(device)
     trans = transforms.ToPILImage()
     torch.manual_seed(0)
     noisy_path = sorted(glob.glob(args.noise_dir+ "/*.png"))
@@ -75,12 +76,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='parameters for training')
     parser.add_argument('--noise_dir','-n', default='/home/dell/Downloads/FullTest/noisy', help='path to noise image file')
     # parser.add_argument('--noise_dir','-n', default='/home/dell/Downloads/noise/0001_NOISY_SRGB', help='path to noise image file')
-    parser.add_argument('--image_size','-sz' , type=int,default=256, help='size of image')
-    parser.add_argument('--num_workers', '-nw', default=4, type=int, help='number of workers in data loader')
     parser.add_argument('--cuda', '-c', action='store_true', help='whether to train on the GPU')
     parser.add_argument('--checkpoint', '-ckpt', type=str, default='checkpoint',
                         help='the checkpoint to eval')
-    parser.add_argument('--model_type',default="attWKPN", help='type of model : KPN, attKPN, attWKPN')
+    parser.add_argument('--model_type',default="mirnet", help='type of model : KPN, attKPN, attWKPN')
     parser.add_argument('--save_img', "-s" ,default="img", type=str, help='save image in eval_img folder ')
 
     args = parser.parse_args()
