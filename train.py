@@ -26,7 +26,7 @@ def train(args):
     data_loader = DataLoader(
         data_set,
         batch_size=args.batch_size,
-        shuffle=False,
+        shuffle=True,
         num_workers=args.num_workers
     )
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
