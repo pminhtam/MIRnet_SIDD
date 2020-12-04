@@ -19,15 +19,15 @@ from utils.training_util import save_checkpoint,MovingAverage, load_checkpoint
 
 
 def train(args):
-    torch.set_num_threads(4)
+    torch.set_num_threads(args.num_workers)
     torch.manual_seed(0)
     checkpoint = args.checkpoint
     data_set = SingleLoader(noise_dir=args.noise_dir, gt_dir=args.gt_dir, image_size=args.image_size)
     data_loader = DataLoader(
         data_set,
-        batch_size=1,
+        batch_size=args.batch_size,
         shuffle=False,
-        num_workers=1
+        num_workers=args.num_workers
     )
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     loss_func = losses.CharbonnierLoss().to(device)
@@ -37,7 +37,7 @@ def train(args):
     model = MIRNet().to(device)
     optimizer = optim.Adam(
         model.parameters(),
-        lr=1e-5
+        lr=args.lr
     )
     optimizer.zero_grad()
     global_step = 0
@@ -104,6 +104,7 @@ if __name__ == "__main__":
     parser.add_argument('--epoch', '-e', default=1000, type=int, help='batch size')
     parser.add_argument('--save_every', '-se', default=2, type=int, help='save_every')
     parser.add_argument('--loss_every', '-le', default=1, type=int, help='loss_every')
+    parser.add_argument('--lr', default=1e-5, type=float, help='learning rate')
     parser.add_argument('--restart', '-r', action='store_true',
                         help='Whether to remove all old files and restart the training process')
     parser.add_argument('--num_workers', '-nw', default=4, type=int, help='number of workers in data loader')
