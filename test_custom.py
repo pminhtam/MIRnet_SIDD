@@ -48,13 +48,13 @@ def test(args):
     clean_path = [ i.replace("noisy","clean") for i in noisy_path]
     print(noisy_path)
     for i in range(len(noisy_path)):
-        noise = transforms.ToTensor()(Image.open(noisy_path[i]).convert('RGB')).unsqueeze(0)
+        noise = transforms.ToTensor()(Image.open(noisy_path[i]).convert('RGB'))[:, 0:args.image_size, 0:args.image_size].unsqueeze(0)
         noise = noise.to(device)
         begin = time.time()
         print(noise.size())
         pred = model(noise)
         pred = pred.detach().cpu()
-        gt = transforms.ToTensor()(Image.open(clean_path[i]).convert('RGB'))
+        gt = transforms.ToTensor()(Image.open(clean_path[i]).convert('RGB'))[:, 0:args.image_size, 0:args.image_size]
         gt = gt.unsqueeze(0)
         psnr_t = calculate_psnr(pred, gt)
         ssim_t = calculate_ssim(pred, gt)
@@ -79,6 +79,7 @@ if __name__ == "__main__":
     parser.add_argument('--cuda', '-c', action='store_true', help='whether to train on the GPU')
     parser.add_argument('--checkpoint', '-ckpt', type=str, default='checkpoint',
                         help='the checkpoint to eval')
+    parser.add_argument('--image_size', '-sz', default=64, type=int, help='size of image')
     parser.add_argument('--model_type',default="mirnet", help='type of model : KPN, attKPN, attWKPN')
     parser.add_argument('--save_img', "-s" ,default="img", type=str, help='save image in eval_img folder ')
 
