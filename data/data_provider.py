@@ -6,6 +6,7 @@ import os.path
 import glob
 import torchvision.transforms as transforms
 import numpy as np
+from data.data_transform import random_flip, random_rotate
 
 ##
 
@@ -92,11 +93,15 @@ class SingleLoader(data.Dataset):
         Returns:
             tuple: (image, groundtrue) where image is a noisy version of groundtrue
         """
+        rand_hflip = torch.rand(1)[0]
+        rand_vflip = torch.rand(1)[0]
         image_noise = Image.open(self.noise_path[index]).convert('RGB')
-        name_image_gt = self.noise_path[index].split("/")[-1].replace("NOISY_", "GT_")
-        image_folder_name_gt = self.noise_path[index].split("/")[-2].replace("NOISY_", "GT_")
-        image_gt = Image.open(os.path.join(self.gt_dir, image_folder_name_gt, name_image_gt)).convert('RGB')
-
+        # name_image_gt = self.noise_path[index].split("/")[-1].replace("NOISY_", "GT_")
+        # image_folder_name_gt = self.noise_path[index].split("/")[-2].replace("NOISY_", "GT_")
+        # image_gt = Image.open(os.path.join(self.gt_dir, image_folder_name_gt, name_image_gt)).convert('RGB')
+        image_gt = Image.open(self.noise_path[index].replace("Noisy",'Clean')).convert('RGB')
+        image_noise = random_flip(image_noise,rand_hflip,rand_vflip)
+        image_gt = random_flip(image_gt,rand_hflip,rand_vflip)
         image_noise = self.transforms(image_noise)
         image_gt = self.transforms(image_gt)
         image_noise, image_gt = random_cut(image_noise, image_gt, w=self.image_size)
