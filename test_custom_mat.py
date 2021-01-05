@@ -30,7 +30,7 @@ def test(args):
         os.makedirs(save_img)
     # summary(model,[[3,128,128],[0]])
     # exit()
-    checkpoint_dir = "checkpoint/"
+    checkpoint_dir = args.checkpoint
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # try:
     checkpoint = load_checkpoint(checkpoint_dir, device == 'cuda', 'latest')
