@@ -25,9 +25,6 @@ torch.manual_seed(0)
 
 def test(args):
     model = MIRNet()
-    save_img = args.save_img
-    if not os.path.exists(save_img):
-        os.makedirs(save_img)
     # summary(model,[[3,128,128],[0]])
     # exit()
     checkpoint_dir = args.checkpoint
