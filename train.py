@@ -27,11 +27,12 @@ def train(args):
         data_set,
         batch_size=args.batch_size,
         shuffle=True,
-        num_workers=args.num_workers
+        num_workers=args.num_workers,
+        pin_memory=True
     )
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     loss_func = losses.CharbonnierLoss().to(device)
-    checkpoint_dir = "checkpoint/"
+    checkpoint_dir = args.checkpoint
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
     model = MIRNet().to(device)
