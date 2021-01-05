@@ -92,7 +92,7 @@ if __name__ == "__main__":
                         help='the checkpoint to eval')
     parser.add_argument('--image_size', '-sz', default=64, type=int, help='size of image')
     parser.add_argument('--model_type',default="mirnet", help='type of model : KPN, attKPN, attWKPN')
-    parser.add_argument('--save_img', "-s" ,default="img", type=str, help='save image in eval_img folder ')
+    parser.add_argument('--save_img', "-s" ,default="", type=str, help='save image in eval_img folder ')
 
     args = parser.parse_args()
     #
