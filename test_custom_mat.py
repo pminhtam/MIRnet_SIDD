@@ -61,7 +61,7 @@ def test(args):
             begin = time.time()
             pred = model(noise)
             pred = pred.detach().cpu()
-            gt = transforms.ToTensor()((Image.fromarray(all_clean_imgs[i_img])))
+            gt = transforms.ToTensor()((Image.fromarray(all_clean_imgs[i_img][i_block])))
             gt = gt.unsqueeze(0)
             psnr_t = calculate_psnr(pred, gt)
             ssim_t = calculate_ssim(pred, gt)
