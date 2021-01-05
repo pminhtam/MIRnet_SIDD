@@ -44,6 +44,7 @@ def train(args):
     global_step = 0
     average_loss = MovingAverage(args.save_every)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, [2, 4, 6, 8, 10, 12, 14, 16], 0.5)
     try:
         checkpoint = load_checkpoint(checkpoint_dir, device == 'cuda', 'latest')
         start_epoch = checkpoint['epoch']
@@ -93,6 +94,7 @@ def train(args):
                 print(global_step, "PSNR  : ", calculate_psnr(pred, gt))
                 print(average_loss.get_value())
             global_step += 1
+        scheduler.step()
 
 
 if __name__ == "__main__":
