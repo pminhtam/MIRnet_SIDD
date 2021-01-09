@@ -50,3 +50,48 @@ class CharbonnierLoss(nn.Module):
         # loss = torch.sum(torch.sqrt(diff * diff + self.eps))
         loss = torch.mean(torch.sqrt((diff * diff) + (self.eps*self.eps)))
         return loss
+
+class AlginLoss(nn.Module):
+    def __init__(self, eps=1e-3):
+        super(AlginLoss, self).__init__()
+        self.eps = eps
+
+    def forward(self, x, y):
+        y = F.pad(y,[1,1,1,1])
+        diff0 = torch.abs(x-y[1:-1,1:-1])
+        diff1 = torch.abs(x-y[0:-2,0:-2])
+        diff2 = torch.abs(x-y[0:-2,1:-1])
+        diff3 = torch.abs(x-y[0:-2,2:])
+        diff4 = torch.abs(x-y[1:-1,0:-2])
+        diff5 = torch.abs(x-y[1:-1,2:])
+        diff6 = torch.abs(x-y[2:,0:-2])
+        diff7 = torch.abs(x-y[2:,1:-1])
+        diff8 = torch.abs(x-y[2:,2:0])
+        diff_cat = torch.stack([diff0, diff1, diff2, diff3, diff4, diff5, diff6, diff7, diff8])
+        diff = torch.min(diff_cat,dim=0)
+        # loss = torch.sum(torch.sqrt(diff * diff + self.eps))
+        loss = torch.mean(torch.sqrt((diff * diff) + (self.eps*self.eps)))
+        return loss
+
+if __name__ == "__main__":
+    x = torch.rand((3,16,16))
+    y = torch.rand((3,16,16))
+    # y = x
+    y = F.pad(y, [1, 1, 1, 1])
+    print(y[:,1:-1, 1:-1].size())
+    diff0 = torch.abs(x - y[:,1:-1, 1:-1])
+    diff1 = torch.abs(x - y[:,0:-2, 0:-2])
+    diff2 = torch.abs(x - y[:,0:-2, 1:-1])
+    diff3 = torch.abs(x - y[:,0:-2, 2:])
+    diff4 = torch.abs(x - y[:,1:-1, 0:-2])
+    diff5 = torch.abs(x - y[:,1:-1, 2:])
+    diff6 = torch.abs(x - y[:,2:, 0:-2])
+    diff7 = torch.abs(x - y[:,2:, 1:-1])
+    diff8 = torch.abs(x - y[:,2:, 2:])
+
+    diff_cat = torch.stack([diff0, diff1, diff2, diff3, diff4, diff5, diff6, diff7, diff8])
+    # print(diff0)
+    # print(diff_cat.size())
+    diff = torch.min(diff_cat, dim=0)
+    print(diff[0].size())
+    print(diff[0])

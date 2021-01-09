@@ -12,7 +12,6 @@ from torch.optim import lr_scheduler
 import torch.nn as nn
 import numpy as np
 # import model
-from torchsummary import summary
 from utils.metric import calculate_psnr
 from utils.training_util import save_checkpoint,MovingAverage, load_checkpoint
 # from collections import OrderedDict
@@ -21,7 +20,6 @@ from utils.training_util import save_checkpoint,MovingAverage, load_checkpoint
 def train(args):
     torch.set_num_threads(args.num_workers)
     torch.manual_seed(0)
-    checkpoint = args.checkpoint
     data_set = SingleLoader(noise_dir=args.noise_dir, gt_dir=args.gt_dir, image_size=args.image_size)
     data_loader = DataLoader(
         data_set,
@@ -32,6 +30,7 @@ def train(args):
     )
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     loss_func = losses.CharbonnierLoss().to(device)
+    # loss_func = losses.AlginLoss().to(device)
     checkpoint_dir = args.checkpoint
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
@@ -41,28 +40,33 @@ def train(args):
         lr=args.lr
     )
     optimizer.zero_grad()
-    global_step = 0
     average_loss = MovingAverage(args.save_every)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, [2, 4, 6, 8, 10, 12, 14, 16], 0.5)
-    try:
-        checkpoint = load_checkpoint(checkpoint_dir, device == 'cuda', 'latest')
-        start_epoch = checkpoint['epoch']
-        global_step = checkpoint['global_iter']
-        best_loss = checkpoint['best_loss']
-        state_dict = checkpoint['state_dict']
-        # new_state_dict = OrderedDict()
-        # for k, v in state_dict.items():
-        #     name = "model."+ k  # remove `module.`
-        #     new_state_dict[name] = v
-        model.load_state_dict(state_dict)
-        optimizer.load_state_dict(checkpoint['optimizer'])
-        print('=> loaded checkpoint (epoch {}, global_step {})'.format(start_epoch, global_step))
-    except:
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, [2, 4, 6, 8, 10, 12, 14, 16], 0.8)
+    if args.restart:
         start_epoch = 0
         global_step = 0
         best_loss = np.inf
         print('=> no checkpoint file to be loaded.')
+    else:
+        try:
+            checkpoint = load_checkpoint(checkpoint_dir, device == 'cuda', 'latest')
+            start_epoch = checkpoint['epoch']
+            global_step = checkpoint['global_iter']
+            best_loss = checkpoint['best_loss']
+            state_dict = checkpoint['state_dict']
+            # new_state_dict = OrderedDict()
+            # for k, v in state_dict.items():
+            #     name = "model."+ k  # remove `module.`
+            #     new_state_dict[name] = v
+            model.load_state_dict(state_dict)
+            optimizer.load_state_dict(checkpoint['optimizer'])
+            print('=> loaded checkpoint (epoch {}, global_step {})'.format(start_epoch, global_step))
+        except:
+            start_epoch = 0
+            global_step = 0
+            best_loss = np.inf
+            print('=> no checkpoint file to be loaded.')
     for epoch in range(start_epoch, args.epoch):
         for step, (noise, gt) in enumerate(data_loader):
             noise = noise.to(device)
