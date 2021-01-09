@@ -66,7 +66,7 @@ class AlginLoss(nn.Module):
         diff5 = torch.abs(x-y[:,:,1:-1,2:])
         diff6 = torch.abs(x-y[:,:,2:,0:-2])
         diff7 = torch.abs(x-y[:,:,2:,1:-1])
-        diff8 = torch.abs(x-y[:,:,2:,2:0])
+        diff8 = torch.abs(x-y[:,:,2:,2:])
         diff_cat = torch.stack([diff0, diff1, diff2, diff3, diff4, diff5, diff6, diff7, diff8])
         diff = torch.min(diff_cat,dim=0)
         # loss = torch.sum(torch.sqrt(diff * diff + self.eps))
