@@ -15,7 +15,7 @@ import numpy as np
 from utils.metric import calculate_psnr
 from utils.training_util import save_checkpoint,MovingAverage, load_checkpoint
 # from collections import OrderedDict
-from utils import robust_loss_pytorch
+from utils import robust_loss
 
 def train(args):
     torch.set_num_threads(args.num_workers)
@@ -31,7 +31,7 @@ def train(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     loss_func = losses.CharbonnierLoss().to(device)
     # loss_func = losses.AlginLoss().to(device)
-    adaptive = robust_loss_pytorch.adaptive.AdaptiveLossFunction(
+    adaptive = robust_loss.adaptive.AdaptiveLossFunction(
         num_dims=3*args.image_size**2, float_dtype=np.float32, device=device)
     checkpoint_dir = args.checkpoint
     if not os.path.exists(checkpoint_dir):
