@@ -15,7 +15,7 @@ import numpy as np
 from utils.metric import calculate_psnr
 from utils.training_util import save_checkpoint,MovingAverage, load_checkpoint
 # from collections import OrderedDict
-
+from utils import robust_loss_pytorch
 
 def train(args):
     torch.set_num_threads(args.num_workers)
@@ -31,6 +31,8 @@ def train(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     loss_func = losses.CharbonnierLoss().to(device)
     # loss_func = losses.AlginLoss().to(device)
+    adaptive = robust_loss_pytorch.adaptive.AdaptiveLossFunction(
+        num_dims=3*args.image_size**2, float_dtype=np.float32, device=device)
     checkpoint_dir = args.checkpoint
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
@@ -67,6 +69,7 @@ def train(args):
             global_step = 0
             best_loss = np.inf
             print('=> no checkpoint file to be loaded.')
+    eps = 1e-4
     for epoch in range(start_epoch, args.epoch):
         for step, (noise, gt) in enumerate(data_loader):
             noise = noise.to(device)
@@ -74,6 +77,12 @@ def train(args):
             pred = model(noise)
             # print(pred.size())
             loss = loss_func(pred, gt)
+            # bs = gt.size()[0]
+            # diff = noise - gt
+            # loss = torch.sqrt((diff * diff) + (eps * eps))
+            # loss = loss.view(bs,-1)
+            # loss = adaptive.lossfun(loss)
+            # loss = torch.mean(loss)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -98,6 +107,7 @@ def train(args):
                 print(global_step, "PSNR  : ", calculate_psnr(pred, gt))
                 print(average_loss.get_value())
             global_step += 1
+        print('Epoch {} is finished.'.format(epoch))
         scheduler.step()
 
 
