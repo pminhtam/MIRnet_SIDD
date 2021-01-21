@@ -126,10 +126,10 @@ class AdaptiveLossFunction(nn.Module):
       float_dtype = torch.float64
     self.float_dtype = float_dtype
     self.device = device
-    if isinstance(device, int) or\
-       (isinstance(device, str) and 'cuda' in device) or\
-       (isinstance(device, torch.device) and device.type == 'cuda'):
-        torch.cuda.set_device(self.device)
+    # if isinstance(device, int) or\
+    #    (isinstance(device, str) and 'cuda' in device) or\
+    #    (isinstance(device, torch.device) and device.type == 'cuda'):
+    #     torch.cuda.set_device(self.device)
 
     self.distribution = distribution.Distribution()
 
