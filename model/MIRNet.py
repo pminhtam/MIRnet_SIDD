@@ -14,7 +14,7 @@ import numpy as np
 # from pdb import set_trace as stx
 
 from utils.antialias import Downsample as downsamp
-
+from model.KPN_utils import KernelConv
 
 
 ##########################################################################
@@ -360,3 +360,40 @@ class MIRNet(nn.Module):
         h = self.conv_out(h)
         h += x
         return h
+
+class MIRNet_kpn(nn.Module):
+    def __init__(self, in_channels=3, out_channels=3, n_feat=64, kernel_size=3, stride=2, n_RRG=3, n_MSRB=2, height=3, width=2, bias=False):
+        super(MIRNet_kpn, self).__init__()
+
+        self.conv_in = nn.Conv2d(in_channels, n_feat, kernel_size=kernel_size, padding=(kernel_size - 1) // 2, bias=bias)
+
+        modules_body = [RRG(n_feat, n_MSRB, height, width, stride, bias) for _ in range(n_RRG)]
+        self.body = nn.Sequential(*modules_body)
+
+        self.conv_out = nn.Conv2d(n_feat, out_channels, kernel_size=kernel_size, padding=(kernel_size - 1) // 2, bias=bias)
+
+        self.out_kernel = nn.Sequential(
+            nn.Conv2d(n_feat, 5**2, 1, 1, 0)
+        )
+        self.out_weight = nn.Sequential(
+            nn.Conv2d(n_feat, 64, 1, 1, 0),
+            nn.Conv2d(64, out_channels, 1, 1, 0),
+            # nn.Softmax(dim=1)  #softmax 效果较差
+            nn.Sigmoid()
+        )
+        self.kernel_pred = KernelConv(kernel_size=[5])
+
+    def forward(self, x):
+        h = self.conv_in(x)
+        h = self.body(h)
+        residual = self.conv_out(h)
+        residual += x
+        core = self.out_kernel(h)
+        pred_i, _ = self.kernel_pred(x.unsqueeze(1), core, 1.0)
+        pred = pred_i[0]
+        weight = self.out_weight(h)
+        weight = weight.view(pred.size())
+        pred = weight * pred + (1 - weight) * residual
+        # h += x
+
+        return pred

@@ -1,4 +1,4 @@
-from model.MIRNet import MIRNet
+from model.MIRNet import MIRNet,MIRNet_kpn
 import torch
 import argparse
 from torch.utils.data import DataLoader
@@ -36,7 +36,13 @@ def train(args):
     checkpoint_dir = args.checkpoint
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
-    model = MIRNet().to(device)
+    if args.model_type == "MIR":
+        model = MIRNet().to(device)
+    elif args.model_type == "KPN":
+        model = MIRNet_kpn().to(device)
+    else:
+        print(" Model type not valid")
+        return
     optimizer = optim.Adam(
         model.parameters(),
         lr=args.lr
@@ -126,6 +132,7 @@ if __name__ == "__main__":
                         help='Whether to remove all old files and restart the training process')
     parser.add_argument('--num_workers', '-nw', default=4, type=int, help='number of workers in data loader')
     parser.add_argument('--cuda', '-c', action='store_true', help='whether to train on the GPU')
+    parser.add_argument('--model_type','-m' ,default="KPN", help='type of model : KPN, MIR')
     parser.add_argument('--checkpoint', '-ckpt', type=str, default='checkpoints',
                         help='the checkpoint to eval')
 

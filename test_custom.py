@@ -24,10 +24,6 @@ torch.manual_seed(0)
 def test(args):
     model = MIRNet()
     save_img = args.save_img
-    if not os.path.exists(save_img):
-        os.makedirs(save_img)
-    # summary(model,[[3,128,128],[0]])
-    # exit()
     checkpoint_dir = "checkpoint/"
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # try:
@@ -81,7 +77,7 @@ if __name__ == "__main__":
                         help='the checkpoint to eval')
     parser.add_argument('--image_size', '-sz', default=64, type=int, help='size of image')
     parser.add_argument('--model_type',default="mirnet", help='type of model : KPN, attKPN, attWKPN')
-    parser.add_argument('--save_img', "-s" ,default="img", type=str, help='save image in eval_img folder ')
+    parser.add_argument('--save_img', "-s" ,default="", type=str, help='save image in eval_img folder ')
 
     args = parser.parse_args()
     #
