@@ -1,6 +1,6 @@
 import torch
 import argparse
-from model.MIRNet import MIRNet
+from model.MIRNet import MIRNet,MIRNet_kpn
 from torch.utils.data import DataLoader
 # import h5py
 from data.data_provider import SingleLoader
@@ -24,7 +24,13 @@ torch.manual_seed(0)
 torch.manual_seed(0)
 
 def test(args):
-    model = MIRNet()
+    if args.model_type == "MIR":
+        model = MIRNet()
+    elif args.model_type == "KPN":
+        model = MIRNet_kpn()
+    else:
+        print(" Model type not valid")
+        return
     # summary(model,[[3,128,128],[0]])
     # exit()
     checkpoint_dir = args.checkpoint
@@ -88,7 +94,7 @@ if __name__ == "__main__":
     parser.add_argument('--checkpoint', '-ckpt', type=str, default='checkpoint',
                         help='the checkpoint to eval')
     parser.add_argument('--image_size', '-sz', default=64, type=int, help='size of image')
-    parser.add_argument('--model_type',default="mirnet", help='type of model : KPN, attKPN, attWKPN')
+    parser.add_argument('--model_type','-m' ,default="KPN", help='type of model : KPN, MIR')
     parser.add_argument('--save_img', "-s" ,default="", type=str, help='save image in eval_img folder ')
 
     args = parser.parse_args()
