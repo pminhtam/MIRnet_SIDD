@@ -77,7 +77,7 @@ def test(args):
                 plt.figure(figsize=(15, 15))
                 plt.imshow(np.array(trans(pred[0])))
                 plt.title("denoise KPN DGF " + args.model_type, fontsize=25)
-                image_name = str(i_img)
+                image_name = str(i_img) + "_" + str(i_block)
                 plt.axis("off")
                 plt.suptitle(image_name + "   UP   :  PSNR : " + str(psnr_t) + " :  SSIM : " + str(ssim_t), fontsize=25)
                 plt.savefig(os.path.join(args.save_img, image_name + "_" + args.checkpoint + '.png'), pad_inches=0)

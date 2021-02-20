@@ -1,4 +1,4 @@
-from model.MIRNet import MIRNet,MIRNet_kpn
+from model.MIRNet import MIRNet,MIRNet_kpn,MIRNet_DGF
 import torch
 import argparse
 from torch.utils.data import DataLoader
@@ -6,7 +6,7 @@ from utils import losses
 import os
 
 # import h5py
-from data.data_provider import SingleLoader
+from data.data_provider import SingleLoader,SingleLoader_DGF
 import torch.optim as optim
 from torch.optim import lr_scheduler
 import torch.nn as nn
@@ -20,7 +20,7 @@ from utils import robust_loss
 def train(args):
     torch.set_num_threads(args.num_workers)
     torch.manual_seed(0)
-    data_set = SingleLoader(noise_dir=args.noise_dir, gt_dir=args.gt_dir, image_size=args.image_size)
+    data_set = SingleLoader_DGF(noise_dir=args.noise_dir,gt_dir=args.gt_dir,image_size=args.image_size,burst_length=args.burst_length)
     data_loader = DataLoader(
         data_set,
         batch_size=args.batch_size,
@@ -30,16 +30,15 @@ def train(args):
     )
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     loss_func = losses.CharbonnierLoss().to(device)
+    loss_func_i = losses.LossAnneal_i()
     # loss_func = losses.AlginLoss().to(device)
     adaptive = robust_loss.adaptive.AdaptiveLossFunction(
         num_dims=3*args.image_size**2, float_dtype=np.float32, device=device)
     checkpoint_dir = args.checkpoint
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
-    if args.model_type == "MIR":
-        model = MIRNet().to(device)
-    elif args.model_type == "KPN":
-        model = MIRNet_kpn().to(device)
+    if  args.model_type == "DGF":
+        model = MIRNet_DGF().to(device)
     else:
         print(" Model type not valid")
         return
@@ -77,12 +76,16 @@ def train(args):
             print('=> no checkpoint file to be loaded.')
     eps = 1e-4
     for epoch in range(start_epoch, args.epoch):
-        for step, (noise, gt) in enumerate(data_loader):
-            noise = noise.to(device)
-            gt = gt.to(device)
-            pred = model(noise)
+        for step, (image_noise_hr,image_noise_lr, image_gt_hr, image_gt_lr) in enumerate(data_loader):
+            burst_noise = image_noise_lr.to(device)
+            gt = image_gt_hr.to(device)
+            image_gt_lr = image_gt_lr.to(device)
+            image_noise_hr = image_noise_hr.to(device)
+            pred_i, pred = model(burst_noise,image_noise_hr)
             # print(pred.size())
-            loss = loss_func(pred, gt)
+            loss_basic = loss_func(pred, gt)
+            loss_i = loss_func_i(global_step, pred_i, image_gt_lr)
+            loss = loss_basic + loss_i
             # bs = gt.size()[0]
             # diff = noise - gt
             # loss = torch.sqrt((diff * diff) + (eps * eps))
@@ -110,7 +113,10 @@ def train(args):
                 }
                 save_checkpoint(save_dict, is_best, checkpoint_dir, global_step)
             if global_step % args.loss_every == 0:
-                print(global_step, "PSNR  : ", calculate_psnr(pred, gt))
+                print('{:-4d}\t| epoch {:2d}\t| step {:4d}\t| loss_basic: {:.4f}\t|'
+                      ' loss: {:.4f}\t| PSNR: {:.2f}dB\t.'
+                      .format(global_step, epoch, step, loss_basic, loss, calculate_psnr(pred, gt)))
+                # print(global_step, "PSNR  : ", calculate_psnr(pred, gt))
                 print(average_loss.get_value())
             global_step += 1
         print('Epoch {} is finished.'.format(epoch))
@@ -124,6 +130,7 @@ if __name__ == "__main__":
     parser.add_argument('--gt_dir', '-g', default='/home/dell/Downloads/gt', help='path to gt folder image')
     parser.add_argument('--image_size', '-sz', default=128, type=int, help='size of image')
     parser.add_argument('--batch_size', '-bs', default=2, type=int, help='batch size')
+    parser.add_argument('--burst_length', '-b', default=4, type=int, help='batch size')
     parser.add_argument('--epoch', '-e', default=1000, type=int, help='batch size')
     parser.add_argument('--save_every', '-se', default=2, type=int, help='save_every')
     parser.add_argument('--loss_every', '-le', default=1, type=int, help='loss_every')
@@ -132,7 +139,7 @@ if __name__ == "__main__":
                         help='Whether to remove all old files and restart the training process')
     parser.add_argument('--num_workers', '-nw', default=4, type=int, help='number of workers in data loader')
     parser.add_argument('--cuda', '-c', action='store_true', help='whether to train on the GPU')
-    parser.add_argument('--model_type','-m' ,default="KPN", help='type of model : KPN, MIR')
+    parser.add_argument('--model_type','-m' ,default="DGF", help='type of model : DGF')
     parser.add_argument('--checkpoint', '-ckpt', type=str, default='checkpoints',
                         help='the checkpoint to eval')
 

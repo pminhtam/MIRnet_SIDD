@@ -361,6 +361,32 @@ class MIRNet(nn.Module):
         h += x
         return h
 
+from guided_filter_pytorch.guided_filter import ConvGuidedFilter2
+class MIRNet_DGF(nn.Module):
+    def __init__(self):
+        super(MIRNet_DGF, self).__init__()
+        self.mirnet = MIRNet()
+        self.gf = ConvGuidedFilter2(radius=1)
+
+    def forward(self, data,x_hr):
+        b, N, c, h, w = data.size()
+        data = data.view(b*N,c,h,w)
+        pred = self.mirnet(data)
+
+        b_hr, c_hr, h_hr, w_hr = x_hr.size()
+        # print("x_hr  ",x_hr.size())
+        x_hr_feed = x_hr.view(-1,c, h_hr, w_hr)
+        data_feed = data.view(b,c*N,h,w)
+        pred_feed = pred.view(b,c*N,h,w)
+        # print(data_feed.size())
+        # print(pred_feed.size())
+        # print(x_hr_feed.size())
+
+        out_hr = self.gf(data_feed, pred_feed, x_hr_feed)
+
+        out_hr = out_hr.view(b,c, h_hr,w_hr)
+        return data_feed.view(b,N,c,h,w),out_hr
+
 class MIRNet_kpn(nn.Module):
     def __init__(self, in_channels=3, out_channels=3, n_feat=64, kernel_size=3, stride=2, n_RRG=3, n_MSRB=2, height=3, width=2, bias=False):
         super(MIRNet_kpn, self).__init__()
@@ -390,7 +416,9 @@ class MIRNet_kpn(nn.Module):
         residual += x
         core = self.out_kernel(h)
         pred_i, _ = self.kernel_pred(x.unsqueeze(1), core, 1.0)
-        pred = pred_i[0]
+        pred = pred_i[:,0]
+        # print(pred.size())
+        # print(pred_i.size())
         weight = self.out_weight(h)
         weight = weight.view(pred.size())
         pred = weight * pred + (1 - weight) * residual
