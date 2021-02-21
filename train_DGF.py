@@ -1,4 +1,4 @@
-from model.MIRNet import MIRNet,MIRNet_kpn,MIRNet_DGF
+from model.MIRNet import MIRNet_DGF
 import torch
 import argparse
 from torch.utils.data import DataLoader
