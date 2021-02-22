@@ -37,7 +37,7 @@ def train(args):
         os.makedirs(checkpoint_dir)
     if  args.model_type == "DGF":
         model = MIRNet_DGF().to(device)
-    if  args.model_type == "noise":
+    elif  args.model_type == "noise":
         model = MIRNet_noise().to(device)
     else:
         print(" Model type not valid")
