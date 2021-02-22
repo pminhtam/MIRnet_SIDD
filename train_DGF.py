@@ -6,17 +6,15 @@ from utils import losses
 import os
 
 # import h5py
-from data.data_provider import SingleLoader,SingleLoader_DGF
+from data.data_provider import SingleLoader_DGF
 import torch.optim as optim
-from torch.optim import lr_scheduler
-import torch.nn as nn
 import numpy as np
 # import model
 from utils.metric import calculate_psnr
 from utils.training_util import save_checkpoint,MovingAverage, load_checkpoint
 # from collections import OrderedDict
 from utils import robust_loss
-
+from model.MIRNet_noise import MIRNet_noise
 def train(args):
     torch.set_num_threads(args.num_workers)
     torch.manual_seed(0)
@@ -39,6 +37,8 @@ def train(args):
         os.makedirs(checkpoint_dir)
     if  args.model_type == "DGF":
         model = MIRNet_DGF().to(device)
+    if  args.model_type == "noise":
+        model = MIRNet_noise().to(device)
     else:
         print(" Model type not valid")
         return
@@ -139,7 +139,7 @@ if __name__ == "__main__":
                         help='Whether to remove all old files and restart the training process')
     parser.add_argument('--num_workers', '-nw', default=4, type=int, help='number of workers in data loader')
     parser.add_argument('--cuda', '-c', action='store_true', help='whether to train on the GPU')
-    parser.add_argument('--model_type','-m' ,default="DGF", help='type of model : DGF')
+    parser.add_argument('--model_type','-m' ,default="noise", help='type of model : DGF, noise')
     parser.add_argument('--checkpoint', '-ckpt', type=str, default='checkpoints',
                         help='the checkpoint to eval')
 
