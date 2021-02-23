@@ -1,6 +1,6 @@
 import torch
 import argparse
-from model.MIRNet import MIRNet
+from model.MIRNet import MIRNet_DGF
 from torch.utils.data import DataLoader
 # import h5py
 from data.data_provider import SingleLoader
@@ -16,15 +16,22 @@ from PIL import Image
 import glob
 import time
 import scipy.io
+from data.data_provider import pixel_unshuffle
 
 # from torchsummary import summary
 
-torch.set_num_threads(4)
-torch.manual_seed(0)
-torch.manual_seed(0)
-
+def load_data(image_noise,burst_length):
+    image_noise_hr = image_noise
+    upscale_factor = int(math.sqrt(burst_length))
+    image_noise = pixel_unshuffle(image_noise, upscale_factor)
+    while len(image_noise) < burst_length:
+        image_noise = torch.cat((image_noise,image_noise[-2:-1]),dim=0)
+    if len(image_noise) > burst_length:
+        image_noise = image_noise[0:8]
+    image_noise_burst_crop = image_noise.unsqueeze(0)
+    return image_noise_burst_crop,image_noise_hr.unsqueeze(0)
 def test(args):
-    model = MIRNet()
+    model = MIRNet_DGF()
 
     checkpoint_dir = args.checkpoint
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -45,10 +52,12 @@ def test(args):
 
     for i_img in range(i_imgs):
         for i_block in range(i_blocks):
-            noise = transforms.ToTensor()(Image.fromarray(all_noisy_imgs[i_img][i_block])).unsqueeze(0)
-            noise = noise.to(device)
+            noise = transforms.ToTensor()(Image.fromarray(all_noisy_imgs[i_img][i_block]))
+            image_noise, image_noise_hr = load_data(noise, args.burst_length)
+            image_noise_hr = image_noise_hr.to(device)
+            burst_noise = image_noise.to(device)
             begin = time.time()
-            pred = model(noise)
+            _, pred = model(burst_noise,image_noise_hr)
             pred = pred.detach().cpu()
             mat_re[i_img][i_block] = np.array(trans(pred[0]))
 
@@ -62,7 +71,7 @@ if __name__ == "__main__":
     parser.add_argument('--checkpoint', '-ckpt', type=str, default='checkpoint',
                         help='the checkpoint to eval')
     parser.add_argument('--image_size', '-sz', default=64, type=int, help='size of image')
-    parser.add_argument('--model_type',default="mirnet", help='type of model : KPN, attKPN, attWKPN')
+    parser.add_argument('--model_type',default="DGF", help='type of model : DGF')
     parser.add_argument('--save_img', "-s" ,default="", type=str, help='save image in eval_img folder ')
 
     args = parser.parse_args()
