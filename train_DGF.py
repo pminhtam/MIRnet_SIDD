@@ -42,9 +42,9 @@ def train(args):
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
     if  args.model_type == "DGF":
-        model = MIRNet_DGF(n_colors=args.n_colors).to(device)
+        model = MIRNet_DGF(n_colors=args.n_colors,out_channels=args.out_channels).to(device)
     elif  args.model_type == "noise":
-        model = MIRNet_noise(n_colors=args.n_colors).to(device)
+        model = MIRNet_noise(n_colors=args.n_colors,out_channels=args.out_channels).to(device)
     else:
         print(" Model type not valid")
         return
@@ -148,6 +148,7 @@ if __name__ == "__main__":
     parser.add_argument('--model_type','-m' ,default="noise", help='type of model : DGF, noise')
     parser.add_argument('--data_type', '-d', default="rgb", help='type of model : rgb, raw')
     parser.add_argument('--n_colors', '-nc', default=3,type=int, help='number of color dim')
+    parser.add_argument('--out_channels', '-oc', default=3,type=int, help='number of out_channels')
     parser.add_argument('--checkpoint', '-ckpt', type=str, default='checkpoints',
                         help='the checkpoint to eval')
 
