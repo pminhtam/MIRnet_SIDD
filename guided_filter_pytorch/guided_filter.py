@@ -153,10 +153,10 @@ class ResidualUpSample(nn.Module):
 
 
 class ConvGuidedFilter2(nn.Module):
-    def __init__(self, radius=1, norm=nn.BatchNorm2d):
+    def __init__(self, radius=1, norm=nn.BatchNorm2d,n_colors=3,n_bursts=4):
         super(ConvGuidedFilter2, self).__init__()
 
-        self.box_filter = nn.Conv2d(12, 12, kernel_size=3, padding=radius, dilation=radius, bias=False, groups=12)
+        self.box_filter = nn.Conv2d(n_colors*n_bursts, n_colors*n_bursts, kernel_size=3, padding=radius, dilation=radius, bias=False, groups=12)
 
         self.conv_a = nn.Sequential(nn.Conv2d(24, 64, kernel_size=1, bias=False),
                                     norm(64),
@@ -164,15 +164,15 @@ class ConvGuidedFilter2(nn.Module):
                                     nn.Conv2d(64, 64, kernel_size=1, bias=False),
                                     norm(64),
                                     nn.ReLU(inplace=True),
-                                    nn.Conv2d(64, 12, kernel_size=1, bias=False))
+                                    nn.Conv2d(64, n_colors*n_bursts, kernel_size=1, bias=False))
         self.box_filter.weight.data[...] = 1.0
         self.box_filter.requires_grad = False
 
-        self.upsample_A = ResidualUpSample(12)
-        self.upsample_b = ResidualUpSample(12)
+        self.upsample_A = ResidualUpSample(n_colors*n_bursts)
+        self.upsample_b = ResidualUpSample(n_colors*n_bursts)
 
         # 3*4 + 3 -> 3*4
-        self.weight_est = UNet(15, 15)
+        self.weight_est = UNet(n_colors*n_bursts+n_colors, n_colors*n_bursts+n_colors)
 
     def forward(self, x_lr, y_lr, x_hr):
         # x_lr (B, 4*3, H, W)
