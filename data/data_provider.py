@@ -224,7 +224,7 @@ class SingleLoader_raw(data.Dataset):
         """
         image_noise = read_raw(self.noise_path[index])
 
-        image_gt = read_raw(self.noise_path[index].replace("Noisy",'Clean'))
+        image_gt = read_raw(self.noise_path[index].replace("Noisy",'Clean').replace("NOISY",'GT'))
 
         image_noise = self.transforms(image_noise)
         image_gt = self.transforms(image_gt)
@@ -278,7 +278,7 @@ class SingleLoader_DGF_raw(data.Dataset):
         """
 
         image_noise = read_raw(self.noise_path[index])
-        image_gt = read_raw(self.noise_path[index].replace("Noisy", "Clean"))
+        image_gt = read_raw(self.noise_path[index].replace("Noisy", "Clean").replace("NOISY",'GT'))
 
         image_noise = self.transforms(image_noise)
         image_gt = self.transforms(image_gt)
