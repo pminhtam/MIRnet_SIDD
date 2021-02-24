@@ -183,4 +183,115 @@ class SingleLoader_DGF(data.Dataset):
     def __len__(self):
         return len(self.noise_path)
 
+IMG_EXTENSIONS_RAW = [
+    '.RAW', '.raw'
+]
+from utils.raw_util import read_raw
+class SingleLoader_raw(data.Dataset):
+    """
+    Args:
+
+     Attributes:
+        noise_path (list):(image path)
+    """
+
+    def __init__(self, noise_dir, gt_dir, image_size=256):
+
+        self.noise_dir = noise_dir
+        self.gt_dir = gt_dir
+        self.image_size = image_size
+        self.noise_path = []
+        for files_ext in IMG_EXTENSIONS_RAW:
+            self.noise_path.extend(glob.glob(self.noise_dir + "/**/*" + files_ext, recursive=True))
+        self.gt_path = []
+        for files_ext in IMG_EXTENSIONS_RAW:
+            self.gt_path.extend(glob.glob(self.gt_dir + "/**/*" + files_ext, recursive=True))
+
+        if len(self.noise_path) == 0:
+            raise (RuntimeError("Found 0 images in subfolders of: " + self.noise_dir + "\n"
+                                                                                       "Supported image extensions are: " + ",".join(
+                IMG_EXTENSIONS_RAW)))
+
+        self.transforms = transforms.Compose([transforms.ToTensor()])
+
+    def __getitem__(self, index):
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            tuple: (image, groundtrue) where image is a noisy version of groundtrue
+        """
+        image_noise = read_raw(self.noise_path[index])
+
+        image_gt = read_raw(self.noise_path[index].replace("Noisy",'Clean'))
+
+        image_noise = self.transforms(image_noise)
+        image_gt = self.transforms(image_gt)
+        image_noise, image_gt = random_cut(image_noise, image_gt, w=self.image_size)
+        apply_trans = transforms_aug[random.getrandbits(3)]
+
+        image_gt = getattr(augment, apply_trans)(image_gt)
+        image_noise = getattr(augment, apply_trans)(image_noise)
+
+        return image_noise, image_gt
+
+    def __len__(self):
+        return len(self.noise_path)
+
+class SingleLoader_DGF_raw(data.Dataset):
+    """
+    Args:
+
+     Attributes:
+        noise_path (list):(image path)
+    """
+
+    def __init__(self, noise_dir, gt_dir, image_size=128, burst_length=16):
+
+        self.noise_dir = noise_dir
+        self.gt_dir = gt_dir
+        self.image_size = image_size
+        self.noise_path = []
+        self.burst_length = burst_length
+        self.upscale_factor = int(math.sqrt(self.burst_length))
+        for files_ext in IMG_EXTENSIONS_RAW:
+            self.noise_path.extend(glob.glob(self.noise_dir + "/**/*" + files_ext, recursive=True))
+        self.gt_path = []
+        for files_ext in IMG_EXTENSIONS_RAW:
+            self.gt_path.extend(glob.glob(self.gt_dir + "/**/*" + files_ext, recursive=True))
+
+        if len(self.noise_path) == 0:
+            raise (RuntimeError("Found 0 images in subfolders of: " + self.noise_dir + "\n"
+                                                                                       "Supported image extensions are: " + ",".join(
+                IMG_EXTENSIONS_RAW)))
+
+        self.transforms = transforms.Compose([transforms.ToTensor()])
+
+    def __getitem__(self, index):
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            tuple: (image, groundtrue) where image is a noisy version of groundtrue
+        """
+
+        image_noise = read_raw(self.noise_path[index])
+        image_gt = read_raw(self.noise_path[index].replace("Noisy", "Clean"))
+
+        image_noise = self.transforms(image_noise)
+        image_gt = self.transforms(image_gt)
+        image_noise_hr, image_gt_hr = random_cut(image_noise, image_gt, w=self.image_size)
+        apply_trans = transforms_aug[random.getrandbits(3)]
+
+        image_gt_hr = getattr(augment, apply_trans)(image_gt_hr)
+        image_noise_hr = getattr(augment, apply_trans)(image_noise_hr)
+
+        image_noise_lr = pixel_unshuffle(image_noise_hr, upscale_factor=self.upscale_factor)
+        image_gt_lr = pixel_unshuffle(image_gt_hr, upscale_factor=self.upscale_factor)
+        return image_noise_hr, image_noise_lr, image_gt_hr, image_gt_lr
+
+    def __len__(self):
+        return len(self.noise_path)
 
