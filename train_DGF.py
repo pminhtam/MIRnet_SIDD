@@ -6,7 +6,7 @@ from utils import losses
 import os
 
 # import h5py
-from data.data_provider import SingleLoader_DGF
+from data.data_provider import SingleLoader_DGF,SingleLoader_DGF_raw
 import torch.optim as optim
 import numpy as np
 # import model
@@ -18,7 +18,13 @@ from model.MIRNet_noise import MIRNet_noise
 def train(args):
     torch.set_num_threads(args.num_workers)
     torch.manual_seed(0)
-    data_set = SingleLoader_DGF(noise_dir=args.noise_dir,gt_dir=args.gt_dir,image_size=args.image_size,burst_length=args.burst_length)
+    if args.data_type == 'rgb':
+        data_set = SingleLoader_DGF(noise_dir=args.noise_dir,gt_dir=args.gt_dir,image_size=args.image_size,burst_length=args.burst_length)
+    elif args.data_type == 'raw':
+        data_set = SingleLoader_DGF_raw(noise_dir=args.noise_dir,gt_dir=args.gt_dir,image_size=args.image_size,burst_length=args.burst_length)
+    else:
+        print("Data type not valid")
+        exit()
     data_loader = DataLoader(
         data_set,
         batch_size=args.batch_size,
