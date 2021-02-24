@@ -184,7 +184,7 @@ class SingleLoader_DGF(data.Dataset):
         return len(self.noise_path)
 
 IMG_EXTENSIONS_RAW = [
-    '.RAW', '.raw'
+    '.RAW', '.raw','.MAT','.mat'
 ]
 from utils.raw_util import read_raw
 class SingleLoader_raw(data.Dataset):
