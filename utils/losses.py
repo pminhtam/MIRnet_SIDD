@@ -118,7 +118,8 @@ class LossAnneal_i(nn.Module):
     def __init__(self, alpha=0.9998, beta=100):
         super(LossAnneal_i, self).__init__()
         self.global_step = 0
-        self.loss_func = LossBasic(gradient_L1=True)
+        # self.loss_func = LossBasic(gradient_L1=True)
+        self.loss_func = CharbonnierLoss()
         self.alpha = alpha
         self.beta = beta
 
