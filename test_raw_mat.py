@@ -15,9 +15,9 @@ import argparse
 # from torchsummary import summary
 def test(args):
     if args.model_type == "MIR":
-        model = MIRNet()
+        model = MIRNet(in_channels=args.n_colors,out_channels=args.out_channels)
     elif args.model_type == "KPN":
-        model = MIRNet_kpn()
+        model = MIRNet_kpn(in_channels=args.n_colors,out_channels=args.out_channels)
     else:
         print(" Model type not valid")
         return
@@ -89,6 +89,8 @@ if __name__ == "__main__":
                         help='the checkpoint to eval')
     parser.add_argument('--image_size', '-sz', default=64, type=int, help='size of image')
     parser.add_argument('--model_type','-m' ,default="KPN", help='type of model : KPN, MIR')
+    parser.add_argument('--n_colors', '-nc', default=3,type=int, help='number of color dim')
+    parser.add_argument('--out_channels', '-oc', default=3,type=int, help='number of out_channels')
     parser.add_argument('--save_img', "-s" ,default="", type=str, help='save image in eval_img folder ')
 
     args = parser.parse_args()
