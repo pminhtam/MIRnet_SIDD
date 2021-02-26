@@ -155,13 +155,9 @@ class SingleLoader_DGF(data.Dataset):
         Returns:
             tuple: (image, groundtrue) where image is a noisy version of groundtrue
         """
-        rand_hflip = torch.rand(1)[0]
-        rand_vflip = torch.rand(1)[0]
-        rand_affine = torch.rand(1)[0]
-        angle = torch.randint(low=-20, high=20, size=(1,))[0]
 
-        image_noise = random_flip(Image.open(self.noise_path[index]).convert('RGB'), rand_hflip, rand_vflip)
-        image_noise = random_rotate(image_noise, rand_affine, angle)
+
+        image_noise = Image.open(self.noise_path[index]).convert('RGB')
 
         # name_image_gt = self.noise_path[index].split("/")[-1]
         # image_folder_name_gt = self.noise_path[index].split("/")[-2].replace("NOISY_","GT_")
@@ -169,13 +165,16 @@ class SingleLoader_DGF(data.Dataset):
         # name_image_gt = self.noise_path[index].split("/")[-1].replace("NOISY_","GT_")
         # image_folder_name_gt = self.noise_path[index].split("/")[-2].replace("NOISY_","GT_")
         # image_gt = random_flip(Image.open(os.path.join(self.gt_dir,image_folder_name_gt, name_image_gt)).convert('RGB'),rand_hflip,rand_vflip)
-        image_gt = random_flip(Image.open(self.noise_path[index].replace("Noisy", "Clean")).convert('RGB'), rand_hflip,
-                               rand_vflip)
-        image_gt = random_rotate(image_gt, rand_affine, angle)
+        image_gt = Image.open(self.noise_path[index].replace("Noisy", "Clean")).convert('RGB')
 
         image_noise = self.transforms(image_noise)
         image_gt = self.transforms(image_gt)
         image_noise_hr, image_gt_hr = random_cut(image_noise, image_gt, w=self.image_size)
+        apply_trans = transforms_aug[random.getrandbits(3)]
+
+        image_gt_hr = getattr(augment, apply_trans)(image_gt_hr)
+        image_noise_hr = getattr(augment, apply_trans)(image_noise_hr)
+
         image_noise_lr = pixel_unshuffle(image_noise_hr, upscale_factor=self.upscale_factor)
         image_gt_lr = pixel_unshuffle(image_gt_hr, upscale_factor=self.upscale_factor)
         return image_noise_hr, image_noise_lr, image_gt_hr, image_gt_lr

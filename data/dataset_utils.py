@@ -1,6 +1,20 @@
 import torch
 
 class Augment_RGB_torch:
+    '''
+    Performs dat augmentation of the input image
+    Input:
+        image: a pytorch tensor image  (C,h,w)
+        mode: int. Choice of transformation to apply to the image
+                0 - no transformation
+                1 - flip up and down
+                2 - rotate counterwise 90 degree
+                3 - rotate 90 degree and flip up and down
+                4 - rotate 180 degree
+                5 - rotate 180 degree and flip
+                6 - rotate 270 degree
+                7 - rotate 270 degree and flip
+    '''
     def __init__(self):
         pass
     def transform0(self, torch_tensor):
