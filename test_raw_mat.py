@@ -82,7 +82,7 @@ if __name__ == "__main__":
     # argparse
     parser = argparse.ArgumentParser(description='parameters for training')
     parser.add_argument('--noise_dir','-n', default='data/ValidationNoisyBlocksSrgb.mat', help='path to noise image file')
-    parser.add_argument('--gt','-g', default='data/ValidationGtBlocksSrgb.mat', help='path to noise image file')
+    parser.add_argument('--gt_dir','-g', default='data/ValidationGtBlocksSrgb.mat', help='path to noise image file')
     # parser.add_argument('--noise_dir','-n', default='/home/dell/Downloads/noise/0001_NOISY_SRGB', help='path to noise image file')
     parser.add_argument('--cuda', '-c', action='store_true', help='whether to train on the GPU')
     parser.add_argument('--checkpoint', '-ckpt', type=str, default='checkpoint',
