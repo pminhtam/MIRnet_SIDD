@@ -29,11 +29,11 @@ def test(args):
     start_epoch = checkpoint['epoch']
     global_step = checkpoint['global_iter']
     state_dict = checkpoint['state_dict']
-    new_state_dict = OrderedDict()
-    for k, v in state_dict.items():
-        name = "model." + k  # remove `module.`
-        new_state_dict[name] = v
-    model.load_state_dict(new_state_dict)
+    # new_state_dict = OrderedDict()
+    # for k, v in state_dict.items():
+    #     name = "model." + k  # remove `module.`
+    #     new_state_dict[name] = v
+    model.load_state_dict(state_dict)
     print('=> loaded checkpoint (epoch {}, global_step {})'.format(start_epoch, global_step))
     # except:
     #     print('=> no checkpoint file to be loaded.')    # model.load_state_dict(state_dict)
@@ -47,7 +47,7 @@ def test(args):
     all_clean_imgs = scipy.io.loadmat(args.gt_dir)['ValidationGtBlocksRaw']
     # noisy_path = sorted(glob.glob(args.noise_dir+ "/*.png"))
     # clean_path = [ i.replace("noisy","clean") for i in noisy_path]
-    i_imgs,i_blocks, _,_,_ = all_noisy_imgs.shape
+    i_imgs,i_blocks, _,_ = all_noisy_imgs.shape
     psnrs = []
     ssims = []
     # print(noisy_path)
@@ -56,7 +56,7 @@ def test(args):
             noise = transforms.ToTensor()(pack_raw(all_noisy_imgs[i_img][i_block])).unsqueeze(0)
             noise = noise.to(device)
             begin = time.time()
-            pred = model(noise,0)
+            pred = model(noise)
             pred = pred.detach().cpu()
             gt = transforms.ToTensor()((pack_raw(all_clean_imgs[i_img][i_block])))
             gt = gt.unsqueeze(0)
