@@ -8,7 +8,6 @@ class MIRNet_noise(nn.Module):
         super(MIRNet_noise, self).__init__()
         self.unet = UNet(in_channels=n_colors+out_channels, out_channels = out_channels)
         self.mir_dgf = MIRNet_DGF(n_colors=n_colors,out_channels=out_channels)
-        self.gf = ConvGuidedFilter2(radius=1)
 
     def forward(self, data,x_hr):
 

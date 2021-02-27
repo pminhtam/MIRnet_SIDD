@@ -156,7 +156,7 @@ class ConvGuidedFilter2(nn.Module):
     def __init__(self, radius=1, norm=nn.BatchNorm2d,n_colors=3,n_bursts=4):
         super(ConvGuidedFilter2, self).__init__()
 
-        self.box_filter = nn.Conv2d(n_colors*n_bursts, n_colors*n_bursts, kernel_size=3, padding=radius, dilation=radius, bias=False, groups=12)
+        self.box_filter = nn.Conv2d(n_colors*n_bursts, n_colors*n_bursts, kernel_size=3, padding=radius, dilation=radius, bias=False, groups=n_colors*n_burstss)
 
         self.conv_a = nn.Sequential(nn.Conv2d(24, 64, kernel_size=1, bias=False),
                                     norm(64),
