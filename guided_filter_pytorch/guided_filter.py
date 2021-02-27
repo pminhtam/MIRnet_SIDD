@@ -158,7 +158,7 @@ class ConvGuidedFilter2(nn.Module):
 
         self.box_filter = nn.Conv2d(n_colors*n_bursts, n_colors*n_bursts, kernel_size=3, padding=radius, dilation=radius, bias=False, groups=n_colors*n_bursts)
 
-        self.conv_a = nn.Sequential(nn.Conv2d(24, 64, kernel_size=1, bias=False),
+        self.conv_a = nn.Sequential(nn.Conv2d(n_colors*n_bursts*2, 64, kernel_size=1, bias=False),
                                     norm(64),
                                     nn.ReLU(inplace=True),
                                     nn.Conv2d(64, 64, kernel_size=1, bias=False),
