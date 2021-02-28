@@ -49,7 +49,7 @@ def read_raw(img_path):
         # raw = f[list(f.keys())[0]]  # use the first and only key
         # print(list(f.keys()))
         raw = f['x']  # use the first and only key
-        input_image  = pack_raw(raw)
+        # input_image  = pack_raw(raw)
         # print(np.array(raw))
         # print(input_image.shape)
         # unpack_input_image  = unpack_raw(input_image)
