@@ -52,7 +52,7 @@ def read_raw(img_path):
         input_image  = pack_raw(raw)
         # print(np.array(raw))
         # print(input_image.shape)
-        unpack_input_image  = unpack_raw(input_image)
+        # unpack_input_image  = unpack_raw(input_image)
         # print(input_image)
         # print(unpack_input_image)
         # input_image = np.transpose(raw)  # TODO: transpose?
