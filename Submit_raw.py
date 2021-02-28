@@ -55,7 +55,6 @@ if __name__ == "__main__":
     parser.add_argument('--checkpoint', '-ckpt', type=str, default='checkpoint',
                         help='the checkpoint to eval')
     parser.add_argument('--image_size', '-sz', default=64, type=int, help='size of image')
-    parser.add_argument('--model_type',default="mirnet", help='type of model : KPN, attKPN, attWKPN')
     parser.add_argument('--save_img', "-s" ,default="", type=str, help='save image in eval_img folder ')
     parser.add_argument('--model_type','-m' ,default="KPN", help='type of model : KPN, MIR')
     parser.add_argument('--n_colors', '-nc', default=3,type=int, help='number of color dim')
