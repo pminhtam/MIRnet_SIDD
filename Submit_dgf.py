@@ -73,6 +73,7 @@ if __name__ == "__main__":
     parser.add_argument('--image_size', '-sz', default=64, type=int, help='size of image')
     parser.add_argument('--model_type',default="DGF", help='type of model : DGF')
     parser.add_argument('--save_img', "-s" ,default="", type=str, help='save image in eval_img folder ')
+    parser.add_argument('--burst_length', '-b', default=4, type=int, help='batch size')
 
     args = parser.parse_args()
     #
