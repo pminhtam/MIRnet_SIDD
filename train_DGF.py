@@ -6,7 +6,7 @@ from utils import losses
 import os
 
 # import h5py
-from data.data_provider import SingleLoader_DGF,SingleLoader_DGF_raw
+from data.data_provider import SingleLoader_DGF,SingleLoader_DGF_raw,SingleLoader_filter
 import torch.optim as optim
 import numpy as np
 # import model
@@ -22,6 +22,8 @@ def train(args):
         data_set = SingleLoader_DGF(noise_dir=args.noise_dir,gt_dir=args.gt_dir,image_size=args.image_size,burst_length=args.burst_length)
     elif args.data_type == 'raw':
         data_set = SingleLoader_DGF_raw(noise_dir=args.noise_dir,gt_dir=args.gt_dir,image_size=args.image_size,burst_length=args.burst_length)
+    elif args.data_type == 'filter':
+        data_set = SingleLoader_filter(noise_dir=args.noise_dir,gt_dir=args.gt_dir,image_size=args.image_size,burst_length=args.burst_length)
     else:
         print("Data type not valid")
         exit()

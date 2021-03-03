@@ -58,3 +58,106 @@ class MixUp_AUG:
         rgb_noisy = lam * rgb_noisy + (1-lam) * rgb_noisy2
 
         return rgb_gt, rgb_noisy
+
+import numpy as np
+def burst_image_filter(image):
+    img_shape = image.shape
+    # print('img_shape: ' + str(img_shape))
+    h = img_shape[0]
+    w = img_shape[1]
+    im1 = image[0:h:2, 0:w:2, :]
+    im2 = image[0:h:2, 1:w:2, :]
+    im3 =image[1:h:2, 1:w:2, :]
+    im4 =image[1:h:2, 0:w:2, :]
+
+    img_arithmetic_mean = (im1 +im2+im3+im4) / 4
+    img_geometric_mean = torch.pow(im1 *im2*im3*im4,1 / 4)
+    img_harmonic_mean = 4 / (1 / im1 + 1 / im2 + 1 / im3 + 1 / im4)
+    img_harmonic_mean = torch.clamp(img_harmonic_mean - 1, 0, 255)
+
+    burst = np.stack([im1, im2, im3, im4], axis=1)
+    img_min = np.min(burst, axis=1)
+    img_max = np.max(burst, axis=1)
+
+    img_midpoint_filter = (img_min + img_max) / 2
+    return torch.cat((img_arithmetic_mean.unsqueeze(0),img_geometric_mean.unsqueeze(0),img_harmonic_mean.unsqueeze(0),img_midpoint_filter.unsqueeze(0)),dim=0)
+
+def arithmetic_mean(img):
+    assert len(img.shape) == 3
+    img = img.astype(np.float32)
+    H, W = img.shape[:2]
+
+    img_mean = (img[0:H:2, 0:W:2] + img[0:H:2, 1:W:2] +
+                img[1:H:2, 0:W:2] + img[1:H:2, 1:W:2]) / 4
+
+    return img_mean
+
+
+def geometric_mean(img):
+    assert len(img.shape) == 3
+    img = img.astype(np.float32)
+    H, W = img.shape[:2]
+
+    img_mean = np.power(img[0:H:2, 0:W:2] * img[0:H:2, 1:W:2] *
+                        img[1:H:2, 0:W:2] * img[1:H:2, 1:W:2],
+                        1/4)
+
+    return img_mean
+
+
+def harmonic_mean(img):
+    assert len(img.shape) == 3
+    img = img.astype(np.float32) + 1
+    H, W = img.shape[:2]
+
+    img_mean = 4 / (1 / img[0:H:2, 0:W:2] + 1 / img[0:H:2, 1:W:2] +
+                    1 / img[1:H:2, 0:W:2] + 1 / img[1:H:2, 1:W:2])
+    img_mean = np.clip(img_mean - 1, 0, 255)
+    return img_mean
+
+
+def midpoint_filter(img):
+    assert len(img.shape) == 3
+    img = img.astype(np.float32)
+    H, W = img.shape[:2]
+
+    burst = np.stack([img[0:H:2, 0:W:2], img[0:H:2, 1:W:2],
+                    img[1:H:2, 0:W:2], img[1:H:2, 1:W:2]], axis=1)
+    img_min = np.min(burst, axis=1)
+    img_max = np.max(burst, axis=1)
+
+    filtered_img = (img_min + img_max) / 2
+    return filtered_img
+
+
+def median_filter(img):
+    assert len(img.shape) == 3
+    img = img.astype(np.float32)
+    H, W = img.shape[:2]
+
+    burst = np.stack([img[0:H:2, 0:W:2], img[0:H:2, 1:W:2],
+                    img[1:H:2, 0:W:2], img[1:H:2, 1:W:2]], axis=1)
+
+    filtered_img = np.median(burst, axis=1)
+    return filtered_img
+
+
+def max_filter(img):
+    assert len(img.shape) == 3
+    img = img.astype(np.float32)
+    H, W = img.shape[:2]
+
+    burst = np.stack([img[0:H:2, 0:W:2], img[0:H:2, 1:W:2],
+                    img[1:H:2, 0:W:2], img[1:H:2, 1:W:2]], axis=1)
+
+    return np.max(burst, axis=1)
+
+
+def min_filter(img):
+    assert len(img.shape) == 3
+    img = img.astype(np.float32)
+    H, W = img.shape[:2]
+
+    burst = np.stack([img[0:H:2, 0:W:2], img[0:H:2, 1:W:2],
+                    img[1:H:2, 0:W:2], img[1:H:2, 1:W:2]], axis=1)
+    return np.min(burst, axis=1)
