@@ -63,24 +63,24 @@ import numpy as np
 def burst_image_filter(image):
     img_shape = image.shape
     # print('img_shape: ' + str(img_shape))
-    h = img_shape[0]
-    w = img_shape[1]
-    im1 = image[0:h:2, 0:w:2, :]
-    im2 = image[0:h:2, 1:w:2, :]
-    im3 =image[1:h:2, 1:w:2, :]
-    im4 =image[1:h:2, 0:w:2, :]
+    h = img_shape[1]
+    w = img_shape[2]
+    im1 = image[:,0:h:2, 0:w:2]
+    im2 = image[:,0:h:2, 1:w:2]
+    im3 =image[:,1:h:2, 1:w:2]
+    im4 =image[:,1:h:2, 0:w:2]
 
     img_arithmetic_mean = (im1 +im2+im3+im4) / 4
     img_geometric_mean = torch.pow(im1 *im2*im3*im4,1 / 4)
     img_harmonic_mean = 4 / (1 / im1 + 1 / im2 + 1 / im3 + 1 / im4)
     img_harmonic_mean = torch.clamp(img_harmonic_mean - 1, 0, 255)
 
-    burst = np.stack([im1, im2, im3, im4], axis=1)
-    img_min = np.min(burst, axis=1)
-    img_max = np.max(burst, axis=1)
+    burst = torch.stack((im1.unsqueeze(0), im2.unsqueeze(0), im3.unsqueeze(0), im4.unsqueeze(0)), dim=0)
+    img_min = torch.min(burst, dim=0)[0]
+    img_max = torch.max(burst, dim=0)[0]
 
     img_midpoint_filter = (img_min + img_max) / 2
-    return torch.cat((img_arithmetic_mean.unsqueeze(0),img_geometric_mean.unsqueeze(0),img_harmonic_mean.unsqueeze(0),img_midpoint_filter.unsqueeze(0)),dim=0)
+    return torch.cat((img_arithmetic_mean.unsqueeze(0),img_geometric_mean.unsqueeze(0),img_harmonic_mean.unsqueeze(0),img_midpoint_filter),dim=0)
 
 def arithmetic_mean(img):
     assert len(img.shape) == 3

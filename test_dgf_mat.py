@@ -27,10 +27,21 @@ def load_data(image_noise,burst_length):
         image_noise = image_noise[0:8]
     image_noise_burst_crop = image_noise.unsqueeze(0)
     return image_noise_burst_crop,image_noise_hr.unsqueeze(0)
+from data.dataset_utils import burst_image_filter
+def load_data_filter(image_noise,burst_length):
+    image_noise_hr = image_noise
+    image_noise = burst_image_filter(image_noise_hr)
+    image_noise_burst_crop = image_noise.unsqueeze(0)
+    return image_noise_burst_crop,image_noise_hr.unsqueeze(0)
+
 def test(args):
     model = MIRNet_DGF()
     # summary(model,[[3,128,128],[0]])
     # exit()
+    if args.data_type == 'rgb':
+        load_data = lambda : load_data
+    elif args.data_type == 'filter':
+        load_data = load_data_filter
     checkpoint_dir = args.checkpoint
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # try:
@@ -91,6 +102,7 @@ if __name__ == "__main__":
     parser.add_argument('--gt','-g', default='data/ValidationGtBlocksSrgb.mat', help='path to noise image file')
     # parser.add_argument('--noise_dir','-n', default='/home/dell/Downloads/noise/0001_NOISY_SRGB', help='path to noise image file')
     parser.add_argument('--cuda', '-c', action='store_true', help='whether to train on the GPU')
+    parser.add_argument('--data_type', '-d', default="rgb", help='type of model : rgb, filter')
     parser.add_argument('--burst_length', '-b', default=4, type=int, help='batch size')
     parser.add_argument('--checkpoint', '-ckpt', type=str, default='checkpoint',
                         help='the checkpoint to eval')
