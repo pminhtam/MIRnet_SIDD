@@ -179,7 +179,7 @@ class SingleLoader_DGF(data.Dataset):
         image_gt_lr = pixel_unshuffle(image_gt_hr, upscale_factor=self.upscale_factor)
 
         image_gt_lr = image_gt_lr[int(torch.ceil(torch.FloatTensor(1,1).uniform_(0, 4)-1))]
-        image_gt_lr = image_gt_lr.unsqueeze(0).reoeat(4,1,1,1)
+        image_gt_lr = image_gt_lr.unsqueeze(0).repeat(4,1,1,1)
         return image_noise_hr, image_noise_lr, image_gt_hr, image_gt_lr
 
     def __len__(self):
@@ -255,7 +255,7 @@ class SingleLoader_filter(data.Dataset):
         im4 = image_gt_hr[1:h:2, 0:w:2, :]
 
         image_gt_lr = (im1 + im2 + im3 + im4) / 4
-        image_gt_lr = image_gt_lr.unsqueeze(0).reoeat(4,1,1,1)
+        image_gt_lr = image_gt_lr.unsqueeze(0).repeat(4,1,1,1)
         return image_noise_hr, image_noise_lr, image_gt_hr, image_gt_lr
 
     def __len__(self):
