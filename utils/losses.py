@@ -134,7 +134,9 @@ class LossAnneal_i(nn.Module):
         for i in range(pred_i.size(1)):
             loss += self.loss_func(pred_i[:, i, ...], ground_truth[:,i,...])
         loss /= pred_i.size(1)
-        return self.beta * self.alpha ** global_step * loss
+        loss = self.beta * self.alpha ** global_step * loss
+        loss.requires_grad = True
+        return loss
 if __name__ == "__main__":
     x = torch.rand((3,16,16))
     y = torch.rand((3,16,16))
