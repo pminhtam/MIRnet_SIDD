@@ -247,8 +247,8 @@ class SingleLoader_filter(data.Dataset):
         # image_gt_lr = burst_image_filter(image_gt_hr)
         img_shape = image_gt_hr.shape
         # print('img_shape: ' + str(img_shape))
-        h = img_shape[0]
-        w = img_shape[1]
+        h = img_shape[1]
+        w = img_shape[2]
         im1 = image_gt_hr[0:h:2, 0:w:2, :]
         im2 = image_gt_hr[0:h:2, 1:w:2, :]
         im3 = image_gt_hr[1:h:2, 1:w:2, :]
