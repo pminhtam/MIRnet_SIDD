@@ -249,10 +249,10 @@ class SingleLoader_filter(data.Dataset):
         # print('img_shape: ' + str(img_shape))
         h = img_shape[1]
         w = img_shape[2]
-        im1 = image_gt_hr[0:h:2, 0:w:2, :]
-        im2 = image_gt_hr[0:h:2, 1:w:2, :]
-        im3 = image_gt_hr[1:h:2, 1:w:2, :]
-        im4 = image_gt_hr[1:h:2, 0:w:2, :]
+        im1 = image_gt_hr[:,0:h:2, 0:w:2]
+        im2 = image_gt_hr[:,0:h:2, 1:w:2]
+        im3 = image_gt_hr[:,1:h:2, 1:w:2]
+        im4 = image_gt_hr[:, 1:h:2, 0:w:2]
 
         image_gt_lr = (im1 + im2 + im3 + im4) / 4
         image_gt_lr = image_gt_lr.unsqueeze(0).repeat(4,1,1,1)
