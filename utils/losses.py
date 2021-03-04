@@ -147,6 +147,8 @@ class BasicLoss(nn.Module):
         self.beta = beta
 
     def forward(self, pred, burst_pred, gt, gamma):
+        b,N,c,h,w = burst_pred.size()
+        burst_pred = burst_pred.permute(b,c*N,h,w)
         burst_gt = torch.cat([gt[..., i::2, j::2] for i in range(2) for j in range(2)], dim=1)
 
         anneal_coeff = max(self.alpha ** gamma * self.beta, 1)
