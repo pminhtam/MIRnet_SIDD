@@ -17,7 +17,7 @@ from data.data_provider import pixel_unshuffle
 
 # from torchsummary import summary
 
-def load_data(image_noise,burst_length):
+def load_data_split(image_noise,burst_length):
     image_noise_hr = image_noise
     upscale_factor = int(math.sqrt(burst_length))
     image_noise = pixel_unshuffle(image_noise, upscale_factor)
@@ -39,7 +39,7 @@ def test(args):
     # summary(model,[[3,128,128],[0]])
     # exit()
     if args.data_type == 'rgb':
-        load_data = lambda : load_data
+        load_data = load_data_split
     elif args.data_type == 'filter':
         load_data = load_data_filter
     checkpoint_dir = args.checkpoint
