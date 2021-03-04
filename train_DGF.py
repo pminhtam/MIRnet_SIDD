@@ -35,9 +35,10 @@ def train(args):
         pin_memory=True
     )
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    loss_func = losses.CharbonnierLoss().to(device)
-    loss_func_i = losses.LossAnneal_i()
+    # loss_func = losses.CharbonnierLoss().to(device)
+    # loss_func_i = losses.LossAnneal_i()
     # loss_func = losses.AlginLoss().to(device)
+    loss_func = losses.BasicLoss()
     adaptive = robust_loss.adaptive.AdaptiveLossFunction(
         num_dims=3*args.image_size**2, float_dtype=np.float32, device=device)
     checkpoint_dir = args.checkpoint
@@ -91,9 +92,9 @@ def train(args):
             image_noise_hr = image_noise_hr.to(device)
             pred_i, pred = model(burst_noise,image_noise_hr)
             # print(pred.size())
-            loss_basic = loss_func(pred, gt)
-            loss_i = loss_func_i(10, pred_i, image_gt_lr)
-            loss = loss_basic + loss_i
+            loss_basic = loss_func(pred,pred_i, gt,global_step)
+            # loss_i = loss_func_i(10, pred_i, image_gt_lr)
+            loss = loss_basic
             # bs = gt.size()[0]
             # diff = noise - gt
             # loss = torch.sqrt((diff * diff) + (eps * eps))
