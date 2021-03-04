@@ -92,7 +92,7 @@ def train(args):
             image_noise_hr = image_noise_hr.to(device)
             pred_i, pred = model(burst_noise,image_noise_hr)
             # print(pred.size())
-            loss_basic = loss_func(pred,pred_i, gt,global_step)
+            loss_basic,_,_ = loss_func(pred,pred_i, gt,global_step)
             # loss_i = loss_func_i(10, pred_i, image_gt_lr)
             loss = loss_basic
             # bs = gt.size()[0]
