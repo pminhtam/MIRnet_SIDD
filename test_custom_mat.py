@@ -19,9 +19,6 @@ import scipy.io
 
 # from torchsummary import summary
 
-torch.set_num_threads(4)
-torch.manual_seed(0)
-torch.manual_seed(0)
 
 def test(args):
     if args.model_type == "MIR":

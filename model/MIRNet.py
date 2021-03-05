@@ -363,10 +363,10 @@ class MIRNet(nn.Module):
 
 from guided_filter_pytorch.guided_filter import ConvGuidedFilter2
 class MIRNet_DGF(nn.Module):
-    def __init__(self,n_colors=3,out_channels=3):
+    def __init__(self,n_colors=3,out_channels=3,burst_length=4):
         super(MIRNet_DGF, self).__init__()
         self.mirnet = MIRNet(in_channels=n_colors,out_channels=out_channels)
-        self.gf = ConvGuidedFilter2(radius=1,n_colors=n_colors,n_bursts=4)
+        self.gf = ConvGuidedFilter2(radius=1,n_colors=n_colors,n_bursts=burst_length)
 
     def forward(self, data,x_hr):
         b, N, c, h, w = data.size()

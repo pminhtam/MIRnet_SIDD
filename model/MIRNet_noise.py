@@ -4,10 +4,10 @@ from guided_filter_pytorch.subnet import UNet
 from guided_filter_pytorch.guided_filter import ConvGuidedFilter2
 import torch
 class MIRNet_noise(nn.Module):
-    def __init__(self,n_colors=3,out_channels=0):
+    def __init__(self,n_colors=3,out_channels=0,burst_length=4):
         super(MIRNet_noise, self).__init__()
         self.unet = UNet(in_channels=n_colors+out_channels, out_channels = out_channels)
-        self.mir_dgf = MIRNet_DGF(n_colors=n_colors,out_channels=out_channels)
+        self.mir_dgf = MIRNet_DGF(n_colors=n_colors,out_channels=out_channels,burst_length=burst_length)
 
     def forward(self, data,x_hr):
 
