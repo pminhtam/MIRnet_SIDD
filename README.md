@@ -15,6 +15,6 @@ python  train.py --noise_dir ../image/Noisy/ --gt_dir ../image/Clean/ --image_si
 python test_custom_mat.py  -n /mnt/vinai/SIDD/ValidationNoisyBlocksSrgb.mat  -g /mnt/vinai/SIDD/ValidationGtBlocksSrgb.mat  -c -ckpt mir_kpn -m KPN
 ```
 
-## Resuirement 
+## Requirement 
 mpmath
 torch_dct

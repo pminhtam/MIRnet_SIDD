@@ -1,7 +1,7 @@
 
 import torch
 from skimage.measure import compare_psnr,compare_ssim
-
+from skimage import measure
 
 
 def torch2numpy(tensor, gamma=None):

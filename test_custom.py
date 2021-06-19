@@ -24,7 +24,7 @@ torch.manual_seed(0)
 def test(args):
     model = MIRNet()
     save_img = args.save_img
-    checkpoint_dir = "checkpoint/"
+    checkpoint_dir = "checkpoints/mir"
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # try:
     checkpoint = load_checkpoint(checkpoint_dir, device == 'cuda', 'latest')
@@ -40,7 +40,7 @@ def test(args):
     model = model.to(device)
     trans = transforms.ToPILImage()
     torch.manual_seed(0)
-    noisy_path = sorted(glob.glob(args.noise_dir+ "/*.png"))
+    noisy_path = sorted(glob.glob(args.noise_dir+ "/2_*.png"))
     clean_path = [ i.replace("noisy","clean") for i in noisy_path]
     print(noisy_path)
     for i in range(len(noisy_path)):
@@ -75,9 +75,9 @@ if __name__ == "__main__":
     parser.add_argument('--cuda', '-c', action='store_true', help='whether to train on the GPU')
     parser.add_argument('--checkpoint', '-ckpt', type=str, default='checkpoint',
                         help='the checkpoint to eval')
-    parser.add_argument('--image_size', '-sz', default=64, type=int, help='size of image')
+    parser.add_argument('--image_size', '-sz', default=128, type=int, help='size of image')
     parser.add_argument('--model_type',default="mirnet", help='type of model : KPN, attKPN, attWKPN')
-    parser.add_argument('--save_img', "-s" ,default="", type=str, help='save image in eval_img folder ')
+    parser.add_argument('--save_img', "-s" ,default="img", type=str, help='save image in eval_img folder ')
 
     args = parser.parse_args()
     #

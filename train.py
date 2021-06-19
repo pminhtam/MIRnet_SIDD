@@ -6,7 +6,8 @@ from utils import losses
 import os
 
 # import h5py
-from data.data_provider import SingleLoader,SingleLoader_raw
+# from data.data_provider import SingleLoader,SingleLoader_raw
+from data.data_provider_city import SingleLoader,SingleLoader_raw
 import torch.optim as optim
 from torch.optim import lr_scheduler
 import torch.nn as nn
