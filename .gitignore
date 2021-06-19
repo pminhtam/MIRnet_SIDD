@@ -14,3 +14,7 @@ checkpoints
 checkpoint
 experiment
 img
+*onnx
+*tflite
+*pb
+*data*of*
